@@ -1,0 +1,29 @@
+# ===============================
+# Logging Level
+# ===============================
+logging:
+  level:
+    com:
+      example: DEBUG
+
+# ===============================
+# Spring Profiles Active
+# ===============================
+spring:
+  profiles:
+    active: local
+
+# ===============================
+# Header Size
+# ===============================
+server:
+  max-http-header-size: 4096 # 4kb limit for request header
+
+sftp:
+  min_session_count: 10
+  max_channel_count: 1
+  remote_address: remote_address
+  remote_username: username
+  remote_password: password
+  remote_directory: /
+  private_key: your_id_rsa

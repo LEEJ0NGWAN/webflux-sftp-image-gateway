@@ -5,7 +5,6 @@ import com.jcraft.jsch.ChannelSftp;
 import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple3;
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
@@ -29,11 +28,8 @@ public class ImageUploader {
 
             try (final ByteArrayInputStream bas = new ByteArrayInputStream(t.getT2())) {
 
-                final ChannelSftp channel = t.getT1();
-                final String destination = t.getT3();
-
-                channel.put(bas, destination);
-                channel.chmod(Integer.parseInt("666", 8), destination);
+                t.getT1().put(bas, destination);
+                t.getT1().chmod(Integer.parseInt("666", 8), destination);
 
                 result = true;
 

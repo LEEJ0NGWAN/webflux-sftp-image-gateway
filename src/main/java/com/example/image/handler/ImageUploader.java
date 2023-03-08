@@ -23,26 +23,24 @@ public class ImageUploader {
             Mono.justOrEmpty(channel),
             Mono.justOrEmpty(bytes),
             Mono.justOrEmpty(destination))
-        // .map(ImageUploader::upload)  <-- map is synchronous action; we should avoid map
-        .flatMap(t -> Mono.just((ImageUploader.upload(t)))) // async emit event
+        .flatMap(t -> {
+
+            boolean result = false;
+
+            try (final ByteArrayInputStream bas = new ByteArrayInputStream(t.getT2())) {
+
+                final ChannelSftp channel = t.getT1();
+                final String destination = t.getT3();
+
+                channel.put(bas, destination);
+                channel.chmod(Integer.parseInt("666", 8), destination);
+
+                result = true;
+
+            } catch (Exception e) { e.printStackTrace(); }
+
+            return Mono.just(result);
+        })
         .switchIfEmpty(Mono.error(NO_PARAMETER_EXCEPTION));
-    }
-
-    private static boolean upload(final Tuple3<ChannelSftp, byte[], String> tuple3) {
-
-        boolean result = false;
-        try (final ByteArrayInputStream bas = new ByteArrayInputStream(tuple3.getT2())) {
-
-            final ChannelSftp channel = tuple3.getT1();
-            final String destination = tuple3.getT3();
-
-            channel.put(bas, destination);
-            channel.chmod(Integer.parseInt("666", 8), destination);
-
-            result = true;
-
-        } catch (Exception e) { e.printStackTrace(); }
-
-        return result;
     }
 }

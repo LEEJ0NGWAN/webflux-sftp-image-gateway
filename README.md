@@ -2,7 +2,7 @@
 
 This is an sample image data uploader.
 
-It decodes Base64-encoded image data in request body json and uploads decoded bytes to a target remote SFTP Server.
+It decodes Base64-encoded image data from request body json and uploads decoded bytes to the target remote SFTP Server.
 
 ### Reactive Programming
 

@@ -1,6 +1,6 @@
 # webflux-sftp-image-gateway
 
-This is an sample image data uploader.
+This is a sample image data uploader.
 
 It decodes Base64-encoded image data from request body json and uploads decoded bytes to the target remote SFTP Server.
 

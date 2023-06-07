@@ -19,6 +19,9 @@ spring:
 server:
   max-http-header-size: 4096 # 4kb limit for request header
 
+# ===============================
+# SFTP
+# ===============================
 sftp:
   min_session_count: 10
   max_channel_count: 1

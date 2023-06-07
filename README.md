@@ -10,7 +10,7 @@ It uses webflux(reactor streams and netty) for an asnyc flow.
 
 ### SFTP Connection Pool
 
-Opening a new SSH Connection is so expensive that we should avoid opening a new SSH connection per request and consider to reuse pre-open connections.
+Opening a new SSH Connection is too expensive that we should avoid opening a new SSH connection per request and consider to reuse pre-open connections.
 
 To prevent opening a new SSH connection for each request, it implements a SFTP connection pool managing sftp connections in memory with concurrent hash map collection.
 

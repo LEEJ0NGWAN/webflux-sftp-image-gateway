@@ -30,3 +30,11 @@ sftp:
   remote_password: password
   remote_directory: /
   private_key: your_id_rsa
+
+# ===============================
+# api
+# ===============================
+api:
+  path:
+    health-check: /health
+    image-upload: /upload

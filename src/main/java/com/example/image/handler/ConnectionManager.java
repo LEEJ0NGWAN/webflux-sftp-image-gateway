@@ -1,9 +1,15 @@
 package com.example.image.handler;
 
+import com.example.image.properties.SftpProperties;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.boot.ApplicationArguments;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
 
 import reactor.core.publisher.Mono;
@@ -14,7 +20,9 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ConnectionManager {
+@Component
+@RequiredArgsConstructor
+public class ConnectionManager implements ApplicationRunner {
 
     private static final ResponseStatusException SFTP_CONNECTION_EXCEPTION =
     new ResponseStatusException(INTERNAL_SERVER_ERROR, "Failed to connect to remote server");
@@ -24,34 +32,22 @@ public class ConnectionManager {
     private static final ConcurrentHashMap<Session, AtomicInteger> sessionChannels = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<Session, AtomicInteger> invalidSessions = new ConcurrentHashMap<>();
 
-    private static String remoteUsername;
-    private static String remoteAddress;
+    private final SftpProperties sftpProperties;
 
-    private static int maxChannelCount;
-    private static int minSessionCount;
-
-    public static void init(
-        final byte[] privateKey,
-        final String username, final String address,
-        final int minSessionCount, final int maxChannelCount) throws Exception {
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
 
         // Connection Optimization
         JSch.setConfig("PreferredAuthentications", "publickey");
         JSch.setConfig("StrictHostKeyChecking", "no");
 
-        jSch.addIdentity("id_rsa", privateKey, null, null);
-
-        ConnectionManager.remoteUsername = username;
-        ConnectionManager.remoteAddress = address;
-
-        ConnectionManager.minSessionCount = minSessionCount;
-        ConnectionManager.maxChannelCount = maxChannelCount;
+        jSch.addIdentity("id_rsa", sftpProperties.getPrivateKeyBytes(), null, null);
 
         createSession(0);
     }
 
     // connect new channel: 50ms
-    public static Mono<ChannelSftp> connect() {
+    public Mono<ChannelSftp> connect() {
 
         return Mono
         .just(sessionChannels)
@@ -60,7 +56,7 @@ public class ConnectionManager {
             ChannelSftp channel = null;
 
             for (final Entry<Session, AtomicInteger> e: sessions.entrySet())
-            if (e.getValue().getAndIncrement() < maxChannelCount) {
+            if (e.getValue().getAndIncrement() < sftpProperties.getMaxChannelCount()) {
 
                 if ((channel = openChannel(e.getKey()))!=null) break;
             }
@@ -76,10 +72,10 @@ public class ConnectionManager {
                 .switchIfEmpty(Mono.error(SFTP_CONNECTION_EXCEPTION))));
     }
 
-    public static void disconnect(final ChannelSftp channel)
+    public void disconnect(final ChannelSftp channel)
     { disconnect(channel, null); }
 
-    public static void disconnect(final ChannelSftp channel, Session session) {
+    public void disconnect(final ChannelSftp channel, Session session) {
 
         try {
 
@@ -91,11 +87,12 @@ public class ConnectionManager {
 
             if (sessionChannels.containsKey(session))
             sessionIsDeletable =
-            maxChannelCount <= sessionChannels
+            sftpProperties.getMaxChannelCount() <= sessionChannels
             .get(session)
             .updateAndGet(
                 x->
-                minSessionCount<sessionChannels.size()&&x==1? maxChannelCount:x-1);
+                sftpProperties.getMinSessionCount()<sessionChannels.size()&&
+                x==1? sftpProperties.getMaxChannelCount():x-1);
 
             else if (invalidSessions.contains(session))
             sessionIsDeletable = invalidSessions.get(session).decrementAndGet()==0;
@@ -116,12 +113,15 @@ public class ConnectionManager {
         }
     }
 
-    private static Session createSession(final int initialValue) {
+    private Session createSession(final int initialValue) {
 
         Session session = null;
         try {
 
-            (session = jSch.getSession(remoteUsername, remoteAddress)).connect();
+            (session = jSch.getSession(
+                sftpProperties.getRemoteUsername(),
+                sftpProperties.getRemoteAddress()))
+            .connect();
 
             sessionChannels.put(session, new AtomicInteger(initialValue));
 
@@ -138,7 +138,7 @@ public class ConnectionManager {
         return session;
     }
 
-    private static ChannelSftp openChannel(final Session session) {
+    private ChannelSftp openChannel(final Session session) {
 
         ChannelSftp channel = null;
         if (session!=null) try {

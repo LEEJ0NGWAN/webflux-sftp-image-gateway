@@ -1,0 +1,47 @@
+{"properties": [
+  {
+    "name": "api.path.image-upload",
+    "type": "java.lang.String",
+    "description": "A description for 'api.path.image-upload'"
+  },
+  {
+    "name": "api.path.health-check",
+    "type": "java.lang.String",
+    "description": "A description for 'api.path.health-check'"
+  },
+  {
+    "name": "sftp.min_session_count",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.min_session_count'"
+  },
+  {
+    "name": "sftp.max_channel_count",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.max_channel_count'"
+  },
+  {
+    "name": "sftp.remote_address",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.remote_address'"
+  },
+  {
+    "name": "sftp.remote_username",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.remote_username'"
+  },
+  {
+    "name": "sftp.remote_password",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.remote_password'"
+  },
+  {
+    "name": "sftp.remote_directory",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.remote_directory'"
+  },
+  {
+    "name": "sftp.private_key",
+    "type": "java.lang.String",
+    "description": "A description for 'sftp.private_key'"
+  }
+]}

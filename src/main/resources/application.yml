@@ -28,7 +28,7 @@ sftp:
   remote_address: remote_address
   remote_username: username
   remote_password: password
-  remote_directory: /
+  remote_directory: /sftp/image
   private_key: your_id_rsa
 
 # ===============================

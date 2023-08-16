@@ -16,7 +16,7 @@ To prevent opening a new SSH connection for each request, it implements a SFTP c
 
 ### Flow
 
-![flow](./image-gateway.png)
+![flow](./image-gateway2.png)
 
 ### Specification
 - maven
